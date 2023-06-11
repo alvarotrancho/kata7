@@ -1,0 +1,147 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+    echo "Debe proporcionar al menos un nombre de usuario como argumento."
+    exit 1
+fi
+
+# Recorrer los nombres de usuario proporcionados como argumentos
+for usuario in "$@"; do
+    # Comprobar si el usuario existe
+    if id "$usuario" >/dev/null 2>&1; then
+        # Obtener el directorio de inicio del usuario
+        directorio_inicio=$(getent passwd "$usuario" | cut -d: -f6)
+        
+        # Comprobar si el directorio de inicio desciende de /home
+        if [[ "$directorio_inicio" == "/home"* ]]; then
+            # Contar los procesos activos del usuario
+            num_procesos=$(pgrep -u "$usuario" | wc -l)
+            
+            # Contar los ficheros en el directorio de inicio del usuario
+            num_ficheros=$(find "$directorio_inicio" -type f | wc -l)
+            
+            # Escribir en el archivo NumFileUser.txt
+            echo "El usuario $usuario tiene $num_procesos procesos activos, su directorio de inicio es $directorio_inicio y en él hay $num_ficheros fichero(s)." >> NumFileUser.txt
+        else
+            echo "El directorio de inicio del usuario $usuario ($directorio_inicio) no desciende de /home."
+        fi
+    else
+        echo "El usuario $usuario no existe."
+    fi
+done
+
+================================================================================
+#!/bin/bash
+
+if [ $# -ne 1 ]; then
+    echo "Error: Debe proporcionar exactamente un directorio como argumento."
+    exit 1
+fi
+
+directorio="$1"
+
+if [ ! -d "$directorio" ]; then
+    echo "Error: El argumento proporcionado no es un directorio válido."
+    exit 1
+fi
+
+archivos_txt=("$directorio"/*.txt)
+
+if [ ${#archivos_txt[@]} -eq 0 ]; then
+    echo "Error: No se encontraron archivos .txt en el directorio especificado."
+    exit 1
+fi
+
+for archivo in "${archivos_txt[@]}"; do
+    primera_linea=$(head -n 1 "$archivo")
+    echo "======== Fichero: $archivo ========"
+    echo "Primera línea del fichero $archivo"
+    echo "$primera_linea"
+done
+
+exit 0
+================================================================================
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+    echo "Debe proporcionar al menos un código de país como argumento."
+    exit 1
+fi
+
+# Recorrer los códigos de país proporcionados como argumentos
+for pais_argumento in "$@"; do
+    if [[ ! $pais_argumento =~ ^[0-9]{2}$ ]]; then
+        echo "$pais_argumento no es un código de dos dígitos."
+        continue
+    fi
+
+    # Contar la cantidad de códigos de barras para el país
+    cantidad=$(grep -c "^$pais_argumento" barcode.txt)
+    echo "El número de apariciones del país $pais_argumento es $cantidad."
+done
+
+
+#!/bin/bash
+
+if [ $# -ne 1 ]; then
+    echo "Debe proporcionar la ruta de un fichero como argumento."
+    exit 1
+fi
+
+fichero="$1"
+nuevo_fichero="New$fichero"
+
+# Comprobar si el fichero existe
+if [ ! -f "$fichero" ]; then
+    echo "El fichero $fichero no existe."
+    exit 1
+fi
+================================================================================
+# Leer el fichero línea por línea
+while IFS=" " read -r usuario uid directorio_inicio; do
+    # Comprobar si el usuario existe en la lista de usuarios del sistema
+    if id "$usuario" >/dev/null 2>&1; then
+        # Comprobar si todos los campos son no vacíos
+        if [ -n "$uid" ] && [ -n "$directorio_inicio" ]; then
+            echo "$usuario $uid $directorio_inicio" >> "$nuevo_fichero"
+        else
+            echo "Usuario: $usuario - Datos incompletos. Se omitirá en el nuevo fichero."
+        fi
+    else
+        echo "Usuario: $usuario - No existe en la lista de usuarios del sistema. Se omitirá en el nuevo fichero."
+    fi
+done < "$fichero"
+
+echo "Proceso completado. El nuevo fichero se ha generado: $nuevo_fichero"
+
+================================================================================
+Obtenga los ficheros pdf existentes en el directorio del usuario, ordenados de mayor a menor tamaño. La lista contendrá el tamaño y el nombre de cada fichero. 
+find "$HOME" -name "*.pdf" -type f -exec du -h {} + | sort -rh
+
+Obtenga el número de palabras del fichero “/usr/share/dict/words” en las que la letra “z” aparece al menos dos veces.
+grep -E '(.*z.*){2,}' /usr/share/dict/words | wc -l
+
+Obtenga una lista, ordenada alfabéticamente, de todos los usuarios que están ejecutando un proceso en el sistema. En la lista no deben aparecer usuarios repetidos.
+ps -eo user= | sort -u
+
+Obtener el nombre del usuario que lleve más tiempo en sesión y la fecha y la hora en que inició su sesión. 
+who -u | sort -k4 -r | head -n1
+
+Encontrar los ficheros regulares que puedan ser ejecutados por algún usuario del sistema y estén ubicados en el directorio "/etc", o en cualquiera de sus descendientes, 
+que contengan al principio de una de sus líneas la cadena "DEVICE=". 
+
+find /etc -type f -executable -exec grep -lE '^\\"DEVICE=' {} +
+
+Mostrar por pantalla los procesos del sistema que no son propiedad del usuario "root". 
+Para cada uno de estos procesos se deberá mostrar, sólo y en el orden que se especifica, la siguiente información: usuario propietario, identificador de proceso y 
+orden que dio lugar al proceso. El listado deberá estar ordenado alfabéticamente por el usuario propietario.
+
+ps -eo user,pid,args --sort=user | awk '!/root/'
+
+Encontrar en el sistema todos los nombres de fichero que se repitan dos o más veces. Para cada uno de estos ficheros debe mostrar una línea por pantalla que contenga, sólo y en el orden que se especifica, la siguiente información: nombre del fichero, número de veces con que se repite el nombre del fichero. 
+Las líneas que se muestren deben estar ordenadas decrecientemente por el número de veces con que se repite el nombre del fichero. 
+
+find / -type f -printf "%f\n" | sort | uniq -d -c | awk '$1 > 2 {print $2, $1}' | sort -k2nr
+
+
+
