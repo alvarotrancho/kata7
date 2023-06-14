@@ -80,7 +80,7 @@ for pais_argumento in "$@"; do
     echo "El número de apariciones del país $pais_argumento es $cantidad."
 done
 
-
+================================================================================
 #!/bin/bash
 
 if [ $# -ne 1 ]; then
@@ -96,7 +96,7 @@ if [ ! -f "$fichero" ]; then
     echo "El fichero $fichero no existe."
     exit 1
 fi
-================================================================================
+
 # Leer el fichero línea por línea
 while IFS=" " read -r usuario uid directorio_inicio; do
     # Comprobar si el usuario existe en la lista de usuarios del sistema
@@ -143,5 +143,6 @@ Las líneas que se muestren deben estar ordenadas decrecientemente por el númer
 
 find / -type f -printf "%f\n" | sort | uniq -d -c | awk '$1 > 2 {print $2, $1}' | sort -k2nr
 
-
+who -s | tr -s " " | cut -d" "  -f1 1,3 ,4 |  sort -k3,4 | head -n 1
+grep -r "^DEVICE=" /etc
 
