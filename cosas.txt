@@ -131,6 +131,8 @@ Encontrar los ficheros regulares que puedan ser ejecutados por algún usuario de
 que contengan al principio de una de sus líneas la cadena "DEVICE=". 
 
 find /etc -type f -executable -exec grep -lE '^\\"DEVICE=' {} +
+find /etc -type f -perm /u+x -exec grep -l '^DEVICE=' {} +
+
 
 Mostrar por pantalla los procesos del sistema que no son propiedad del usuario "root". 
 Para cada uno de estos procesos se deberá mostrar, sólo y en el orden que se especifica, la siguiente información: usuario propietario, identificador de proceso y 
