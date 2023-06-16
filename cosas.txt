@@ -119,7 +119,7 @@ Obtenga los ficheros pdf existentes en el directorio del usuario, ordenados de m
 find "$HOME" -name "*.pdf" -type f -exec du -h {} + | sort -rh
 
 Obtenga el número de palabras del fichero “/usr/share/dict/words” en las que la letra “z” aparece al menos dos veces.
-grep -E '(.*z.*){2,}' /usr/share/dict/words | wc -l
+grep -E "^z.*z.*$" /usr/share/dict/words | wc -l
 
 Obtenga una lista, ordenada alfabéticamente, de todos los usuarios que están ejecutando un proceso en el sistema. En la lista no deben aparecer usuarios repetidos.
 ps -eo user= | sort -u
