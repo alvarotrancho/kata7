@@ -198,6 +198,8 @@ done < "$archivo"
 Obtenga los ficheros pdf existentes en el directorio del usuario, ordenados de mayor a menor tamaño. La lista contendrá el tamaño y el nombre de cada fichero. 
 find "$HOME" -name "*.pdf" -type f -exec du -h {} + | sort -rh
 ls -lhS ~/ | grep ".pdf$"
+find ~ -type f -name "*.pdf" -printf "%s %f\n" | sort -nr
+
 
 Obtenga el número de palabras del fichero “/usr/share/dict/words” en las que la letra “z” aparece al menos dos veces.
 grep -E "^z.*z.*$" /usr/share/dict/words | wc -l
