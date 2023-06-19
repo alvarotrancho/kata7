@@ -115,6 +115,86 @@ done < "$fichero"
 echo "Proceso completado. El nuevo fichero se ha generado: $nuevo_fichero"
 
 ================================================================================
+#!/bin/bash
+
+# Comprobación de argumentos
+if [ $# -eq 0 ]; then
+  echo "Debe proporcionar al menos un nombre de archivo como argumento."
+  exit 1
+fi
+
+# Obtener la lista de directorios iniciales de los usuarios del sistema
+directorios_iniciales=$(cut -d: -f6 /etc/passwd)
+
+# Iterar sobre los nombres de archivo proporcionados
+for archivo in "$@"; do
+  echo "Archivo: $archivo"
+
+  # Bandera para verificar si se encontró el archivo en algún directorio
+  encontrado=false
+
+  # Iterar sobre los directorios iniciales de los usuarios
+  for directorio in $directorios_iniciales; do
+    ruta_archivo="$directorio/$archivo"
+
+    # Comprobar si el archivo existe en el directorio
+    if [ -e "$ruta_archivo" ]; then
+      encontrado=true
+      echo "Encontrado en: $directorio"
+    fi
+  done
+
+  # Comprobar si el archivo no fue encontrado en ningún directorio
+  if ! $encontrado; then
+    echo "No encontrado en ningún directorio."
+  fi
+
+  echo "----------------------------------------"
+done
+=====================================================================
+#!/bin/bash
+
+# Comprobación de argumentos
+if [ $# -ne 1 ]; then
+  echo "Uso: $0 archivo_usuarios"
+  exit 1
+fi
+
+archivo=$1
+
+# Comprobación de existencia y lectura del archivo de usuarios
+if [ ! -f "$archivo" ]; then
+  echo "El archivo $archivo no existe."
+  exit 1
+fi
+
+# Lectura del archivo de usuarios línea por línea
+while IFS= read -r linea || [[ -n "$linea" ]]; do
+  # Separar el nombre de usuario y la ruta del archivo
+  usuario=$(echo "$linea" | cut -d' ' -f1)
+  archivo_ruta=$(echo "$linea" | cut -d' ' -f2)
+
+  # Comprobar si el archivo existe
+  if [ ! -f "$archivo_ruta" ]; then
+    echo "El archivo $archivo_ruta no existe."
+    continue
+  fi
+
+  # Comprobar si el archivo es propiedad del usuario
+  if [ "$(stat -c %U "$archivo_ruta")" != "$usuario" ]; then
+    echo "El archivo $archivo_ruta no es propiedad de $usuario."
+    continue
+  fi
+
+  # Comprobar si el archivo tiene permiso de ejecución
+  if [ ! -x "$archivo_ruta" ]; then
+    echo "El archivo $archivo_ruta no tiene permiso de ejecución."
+    continue
+  fi
+
+  echo "El archivo $archivo_ruta existe, es propiedad de $usuario y tiene permiso de ejecución."
+done < "$archivo"
+==========================================================================================================
 Obtenga los ficheros pdf existentes en el directorio del usuario, ordenados de mayor a menor tamaño. La lista contendrá el tamaño y el nombre de cada fichero. 
 find "$HOME" -name "*.pdf" -type f -exec du -h {} + | sort -rh
 ls -lhS ~/ | grep ".pdf$"
