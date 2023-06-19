@@ -117,21 +117,25 @@ echo "Proceso completado. El nuevo fichero se ha generado: $nuevo_fichero"
 ================================================================================
 Obtenga los ficheros pdf existentes en el directorio del usuario, ordenados de mayor a menor tamaño. La lista contendrá el tamaño y el nombre de cada fichero. 
 find "$HOME" -name "*.pdf" -type f -exec du -h {} + | sort -rh
+ls -lhS ~/ | grep ".pdf$"
 
 Obtenga el número de palabras del fichero “/usr/share/dict/words” en las que la letra “z” aparece al menos dos veces.
 grep -E "^z.*z.*$" /usr/share/dict/words | wc -l
+grep -E "(.*z.*){2,}" /usr/share/dict/words | wc -l
 
 Obtenga una lista, ordenada alfabéticamente, de todos los usuarios que están ejecutando un proceso en el sistema. En la lista no deben aparecer usuarios repetidos.
 ps -eo user= | sort -u
 
 Obtener el nombre del usuario que lleve más tiempo en sesión y la fecha y la hora en que inició su sesión. 
 who -u | sort -k4 -r | head -n1
+who -s | tr -s " " | cut -d" "  -f 1,3,4 |  sort -k2,3 | head -n 1
 
 Encontrar los ficheros regulares que puedan ser ejecutados por algún usuario del sistema y estén ubicados en el directorio "/etc", o en cualquiera de sus descendientes, 
 que contengan al principio de una de sus líneas la cadena "DEVICE=". 
 
 find /etc -type f -executable -exec grep -lE '^\\"DEVICE=' {} +
 find /etc -type f -perm /u+x -exec grep -l '^DEVICE=' {} +
+grep -rl '^DEVICE=' /etc
 
 
 Mostrar por pantalla los procesos del sistema que no son propiedad del usuario "root". 
@@ -139,12 +143,15 @@ Para cada uno de estos procesos se deberá mostrar, sólo y en el orden que se e
 orden que dio lugar al proceso. El listado deberá estar ordenado alfabéticamente por el usuario propietario.
 
 ps -eo user,pid,args --sort=user | awk '!/root/'
+ps -eo user,pid,cmd --sort=user | grep -v "^root "
+
 
 Encontrar en el sistema todos los nombres de fichero que se repitan dos o más veces. Para cada uno de estos ficheros debe mostrar una línea por pantalla que contenga, sólo y en el orden que se especifica, la siguiente información: nombre del fichero, número de veces con que se repite el nombre del fichero. 
 Las líneas que se muestren deben estar ordenadas decrecientemente por el número de veces con que se repite el nombre del fichero. 
 
+find / -type f -printf "%f\n" | sort | uniq -d | uniq -c | sort -rn
 find / -type f -printf "%f\n" | sort | uniq -d -c | awk '$1 > 2 {print $2, $1}' | sort -k2nr
-
-who -s | tr -s " " | cut -d" "  -f1 1,3 ,4 |  sort -k3,4 | head -n 1
+==========================================================================================================================
+who -s | tr -s " " | cut -d" "  -f 1,3,4 |  sort -k2,3 | head -n 1
 grep -r "^DEVICE=" /etc
 
