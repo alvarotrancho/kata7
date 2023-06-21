@@ -237,3 +237,28 @@ find / -type f -printf "%f\n" | sort | uniq -d -c | awk '$1 > 2 {print $2, $1}' 
 who -s | tr -s " " | cut -d" "  -f 1,3,4 |  sort -k2,3 | head -n 1
 grep -r "^DEVICE=" /etc
 
+#!/bin/bash
+
+if [ $# -ne 1 ]; then
+  echo "Usage: $0 <file>"
+  exit 1
+fi
+
+file="$1"
+
+if [ ! -f "$file" ]; then
+  echo "Error: File does not exist."
+  exit 1
+fi
+
+count=0
+
+while read -r word; do
+  first_char=$(echo "$word" | cut -c1)
+  if [[ $first_char =~ [A-Z] ]]; then
+    ((count++))
+  fi
+done < "$file"
+
+echo "The file contains $count words starting with an uppercase letter."
+
